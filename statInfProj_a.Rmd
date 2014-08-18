@@ -1,17 +1,14 @@
 ---
 title: "statInfProj"
-output: pdf_document
+output: word_document
 ---
-
-
-```{r setoptions, echo=TRUE}
+```{r setoptions, echo=FALSE}
 library(knitr)
 library(ggplot2)
 library(plyr)
 opts_chunk$set(echo = TRUE)
 set.seed(100)
 ```
-
 The exponential distribution can be simulated in R with rexp(n, lambda) where lambda is the rate parameter. The mean of exponential distribution is 1/lambda and the standard deviation is also also 1/lambda. Set lambda = 0.2 for all of the simulations. In this simulation, I investigated the distribution of averages of 10, 20, and 40 exponential(0.2)s with a thousand simulated averages of 10, 20, and 40 exponentials.
 
 ## Result of our rexp(n=10,20,40, .2) experiment
@@ -25,30 +22,23 @@ dat20<-rexp(nosim * 20, lambda)
 dat40<-rexp(nosim * 40, lambda)
 
 dat <- data.frame(
-  x = c(apply(
-              matrix(dat10, nosim),
-              1, cfunc, 10),
-        apply(
-              matrix(dat20, nosim),
-              1, cfunc, 20),
-        apply(
-              matrix(dat40, nosim),
-              1, cfunc, 40)
-        ),
-  size = factor(rep(c(10, 20, 40), rep(nosim, 3))))
+  x = c(apply(matrix(dat10, nosim),1, cfunc, 10),
+        apply(matrix(dat20, nosim),1, cfunc, 20),
+        apply(matrix(dat40, nosim),1, cfunc, 40)
+        ),size = factor(rep(c(10, 20, 40), rep(nosim, 3))))
 
 grid <- with(dat, seq(min(x), max(x), length = 1000))
 normaldens <- ddply(dat, "size", function(df) {
   data.frame( 
     predicted = grid,
     density = dnorm(grid, mean=5, sd=5/sqrt(as.numeric(as.character((df$size)))))
-  )
-})
+  )})
 
 g <- ggplot(dat, aes(x = x, fill = size)) + geom_histogram(alpha = .20, binwidth=.3, colour = "black", aes(y = ..density..)) 
 g <- g + geom_line(data = normaldens, aes(x = predicted, y = density), colour = "red")
 g <- g + geom_vline(xintercept = 5) 
-g + facet_grid(. ~ size)
+g <- g + facet_grid(. ~ size)
+g
 ```
 
 1. Show where the distribution is centered at and compare it to the theoretical center of the distribution.
@@ -61,19 +51,19 @@ The theoretical center of the distribution is 5.  It can bee seen in the figure 
 var10<-mean(apply(matrix(dat10, nosim),1, var))
 var10
 ```
-The variance for the 10 simulated exponentials `r var10`
+The variance for the 10 simulated exponentials is `r var10`
 
 ```{r}
 var20<-mean(apply(matrix(dat20, nosim),1, var))
 var20
 ```
-The variance for the 20 simulated exponentials `r var20`
+The variance for the 20 simulated exponentials is `r var20`
 
 ```{r}
 var40<-mean(apply(matrix(dat40, nosim),1, var))
 var40
 ```
-The variance for the 40 simulated exponentials `r var40`
+The variance for the 40 simulated exponentials is `r var40`
 
 The theoretical variance is 25 or (1/.2)^2
 
@@ -86,30 +76,26 @@ In the figure below, I test the Central Limit Theorem by taking the outcome of t
 ```{r, echo = TRUE, fig.width=18, fig.height = 5, fig.align='center'}
 cfunc2 <- function(x, n) sqrt(n) * (mean(x) - 5) / sd(x)
 dat2 <- data.frame(
-  x = c(apply(
-              matrix(dat10, nosim),
-              1, cfunc2, 10),
-        apply(
-              matrix(dat20, nosim),
-              1, cfunc2, 20),
-        apply(
-              matrix(dat40, nosim),
-              1, cfunc2, 40)
-        ),
-  size = factor(rep(c(10, 20, 40), rep(nosim, 3))))
+  x = c(apply(matrix(dat10, nosim),1, cfunc2, 10),
+        apply(matrix(dat20, nosim),1, cfunc2, 20),
+        apply(matrix(dat40, nosim),1, cfunc2, 40)
+        ),  size = factor(rep(c(10, 20, 40), rep(nosim, 3))))
 g <- ggplot(dat2, aes(x = x, fill = size)) + geom_histogram(alpha = .20, binwidth=.3, colour = "black", aes(y = ..density..)) 
 g <- g + stat_function(fun = dnorm, size = 2)
 g + facet_grid(. ~ size)
 ```
 
-4. Evaluate the coverage of the confidence interval for 1/lambda: $\bar X \pm 1.96 \frac{S}{\sqrt{N}}$ 
+4. Evaluate the coverage of the confidence interval for 1/lambda: $$ \bar X \pm 1.96 \frac{S}{\sqrt{N}} $$ 
 
 ```{r}
-mn<-aggregate(x ~ size, data=dat, FUN=mean)
-mn40<-mn[mn$size==40,]$x
-sd<-aggregate(x ~ size, data=dat, FUN=sd) # or sd(apply(matrix(dat40, nosim),1, mean))
-sd40<-sd[sd$size==40,]$x
-n <- 40
+#mn<-aggregate(x ~ size, data=dat, FUN=mean)
+#mn40<-mn[mn$size==40,]$x
+#sd<-aggregate(x ~ size, data=dat, FUN=sd) # or 
+#sd40<-sd[sd$size==40,]$x
 #mn + c(-1, 1) * pnorm(1.96, mean=mn, sd=s, lower.tail=FALSE) * s / sqrt(n)
+
+mn40<-mean(apply(matrix(dat40, nosim), 1, mean))
+sd40<-sd(apply(matrix(dat40, nosim),1, mean))
+n <- 40
 mn40 + c(-1, 1) * 1.96 * sd40 / sqrt(n)
 ```
