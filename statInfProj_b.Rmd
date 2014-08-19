@@ -1,0 +1,72 @@
+```{r setoptions, echo=FALSE}
+library(knitr)
+library(ggplot2)
+opts_chunk$set(echo = TRUE)
+```
+
+## Analysis of the ToothGrowth data in the R datasets package. 
+
+1. Load the ToothGrowth data and perform some basic exploratory data analyses 
+
+### Plotting the data
+```{r, fig.width=6, fig.height=6, fig.align='center'}
+library(ggplot2)
+id<-factor(c(rep(1:10,3),rep(11:20,3)))
+tooth<-cbind(ToothGrowth, id=id)
+g <- ggplot(tooth, aes(x = dose, y = len, group = factor(id)))
+g <- g + facet_grid(. ~ supp)
+g <- g + geom_line( size = 1, aes(colour = id)) + geom_point(size =10, pch = 21, fill = "salmon", alpha = .5)
+g
+```
+
+2. Provide a basic summary of the data.
+
+```{r}
+str(ToothGrowth)
+```
+
+```{r}
+head(ToothGrowth)
+```
+
+```{r}
+summary(ToothGrowth)
+```
+
+3. Use confidence intervals and hypothesis tests to compare tooth growth by supp and dose. (Use the techniques from class even if there's other approaches worth considering)
+```{r}
+vcg1<-tooth$len[1:10]
+vcg2<-tooth$len[11:20]
+vcg3<-tooth$len[21:30]
+
+difference<-vcg3-vcg1
+mn<-mean(difference)
+s<-sd(difference)
+n<-10
+
+mn + c(-1,1)*qt(.975, n-1)*s/sqrt(n)
+t.test(difference)
+```
+
+For Supp VC we reject the null hypotesis with p `r t.test(difference)$p.value`
+
+```{r}
+vcg1<-tooth$len[31:40]
+vcg2<-tooth$len[41:50]
+vcg3<-tooth$len[51:60]
+
+difference<-vcg3-vcg1
+mn<-mean(difference)
+s<-sd(difference)
+n<-10
+
+mn + c(-1,1)*qt(.975, n-1)*s/sqrt(n)
+t.test(difference)
+```
+
+For Supp OJ we reject the null hypotesis with p `r t.test(difference)$p.value`
+
+4. State your conclusions and the assumptions needed for your conclusions. 
+
+Conclusion: Teeth grew with both Supp.  However, teeth grew more on average with Supp VC than with Supp OJ.  
+Assumptions: It was assumed that there were two groups of 10 guinea pigs (one group on each Supp) and that the data within in Supp group was paired.
