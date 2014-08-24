@@ -9,7 +9,7 @@ opts_chunk$set(echo = TRUE)
 1. Load the ToothGrowth data and perform some basic exploratory data analyses 
 
 ### Plotting the data
-```{r, fig.width=6, fig.height=6, fig.align='center'}
+```{r, fig.width=6, fig.height=3, fig.align='center'}
 library(ggplot2)
 id<-factor(c(rep(1:10,3),rep(11:20,3)))
 tooth<-cbind(ToothGrowth, id=id)
